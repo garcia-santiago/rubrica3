@@ -639,6 +639,79 @@ Frontend notes:
 - Useful for dashboard charts.
 - `total_tareas` may arrive as a string; convert it to a number for charts.
 
+## Bitacora
+
+Read-only endpoints for showing the tasks completed or worked by each user. These endpoints are based on `participaciones`, which connects users with tasks and worked hours.
+
+### User Task Log
+
+Returns all task participation records for one user, including task and zone details.
+
+```txt
+GET /bitacora/usuarios/:id_usuario
+```
+
+Example:
+
+```txt
+GET /bitacora/usuarios/1
+```
+
+Success response: `200 OK`
+
+```json
+[
+  {
+    "id_participacion": 1,
+    "id_usuario": 1,
+    "id_tarea": 1,
+    "horas_trabajadas": 3,
+    "titulo": "Regar cultivo",
+    "descripcion": "Regar la zona durante 30 minutos",
+    "tipo_tarea": "Riego",
+    "fecha_tarea": "2026-05-28T00:00:00.000Z",
+    "id_zona": 1,
+    "zona_nombre": "Huerta Norte"
+  }
+]
+```
+
+Frontend notes:
+
+- Use this for a user's personal task history or bitacora screen.
+- If the array is empty, show an empty state like "Aun no hay tareas registradas".
+- `id_participacion` can be used to edit or delete the participation through `/participaciones/:id`.
+- `horas_trabajadas` may arrive as a number or string depending on the database column type.
+
+### User Task Log Summary
+
+Returns totals for one user's bitacora.
+
+```txt
+GET /bitacora/usuarios/:id_usuario/resumen
+```
+
+Example:
+
+```txt
+GET /bitacora/usuarios/1/resumen
+```
+
+Success response: `200 OK`
+
+```json
+{
+  "id_usuario": 1,
+  "total_participaciones": "4",
+  "total_horas": "12"
+}
+```
+
+Frontend notes:
+
+- Use this for cards like "Tareas realizadas" and "Horas trabajadas".
+- PostgreSQL may return aggregate numbers as strings; convert them to numbers if needed for charts or calculations.
+
 ## Suggested Frontend Screens
 
 Build the frontend around these views:
@@ -650,6 +723,7 @@ Build the frontend around these views:
 - Zones screen: list, create, edit, and delete cultivation zones using `/zonas-cultivo`.
 - Tasks screen: list, create, edit, and delete tasks using `/tareas`.
 - Participation screen: create/edit/delete participation records using `/participaciones`.
+- User bitacora screen: show task history and totals using `/bitacora/usuarios/:id_usuario` and `/bitacora/usuarios/:id_usuario/resumen`.
 
 ## Entity Relationships
 
@@ -668,3 +742,4 @@ Build the frontend around these views:
 - For delete actions, show a confirmation dialog before calling `DELETE`.
 - Use users and zones as lookup data when creating tasks.
 - Use users and tasks as lookup data when creating participations.
+Deployment URL https://rubrica3-production.up.railway.app/
